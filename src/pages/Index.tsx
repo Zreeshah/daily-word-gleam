@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Keyboard } from "@/components/Keyboard";
 import { GameBoard } from "@/components/GameBoard";
 import { GameHeader } from "@/components/GameHeader";
+import { GameControls } from "@/components/GameControls";
 import { HowToPlay } from "@/components/HowToPlay";
 import { useToast } from "@/hooks/use-toast";
 import { Footer } from "@/components/Footer";
@@ -14,35 +15,66 @@ const Index = () => {
   const [gameLost, setGameLost] = useState(false);
   const [targetWord, setTargetWord] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [wordLength, setWordLength] = useState(5);
   const { toast } = useToast();
   
-  const MAX_WORD_LENGTH = 5;
   const MAX_GUESSES = 6;
 
-  // Generate daily word based on date
-  useEffect(() => {
-    // List of 5-letter words
-    const wordList = [
-      "AUDIO", "BLAZE", "CRATE", "DRIVE", "EVENT", "FROST", "GLOOM", "HOUND", 
-      "IMAGE", "JUMBO", "KNOTS", "LEMON", "MANGO", "NOBLE", "OCEAN", "PIANO", 
-      "QUICK", "RURAL", "SWEET", "TRUCK", "UNITE", "VOICE", "WATCH", "XENON", 
-      "YOUTH", "ZEBRA", "APPLE", "BEACH", "CLOCK", "DRAMA", "EAGLE", "FLUTE", 
-      "GLORY", "HOUSE", "IGLOO", "JEWEL", "KNIFE", "LIGHT", "MOUSE", "NIGHT"
-    ];
+  // Word lists for different lengths
+  const wordLists = {
+    3: ["CAT", "DOG", "BUG", "HAT", "SUN", "RUN", "MAP", "CUP", "BOX", "PEN"],
+    4: ["CATS", "DOGS", "JUMP", "PLAY", "CARD", "MARK", "PURE", "RAIN", "SNOW", "WILD"],
+    5: ["AUDIO", "BLAZE", "CRATE", "DRIVE", "EVENT", "FROST", "GLOOM", "HOUND", 
+        "IMAGE", "JUMBO", "KNOTS", "LEMON", "MANGO", "NOBLE", "OCEAN", "PIANO", 
+        "QUICK", "RURAL", "SWEET", "TRUCK", "UNITE", "VOICE", "WATCH", "XENON", 
+        "YOUTH", "ZEBRA", "APPLE", "BEACH", "CLOCK", "DRAMA", "EAGLE", "FLUTE", 
+        "GLORY", "HOUSE", "IGLOO", "JEWEL", "KNIFE", "LIGHT", "MOUSE", "NIGHT"],
+    6: ["BUTTON", "COFFEE", "DRAWER", "ENGINE", "FLIGHT", "GARDEN", "HEALTH", "ISLAND", 
+        "JUNGLE", "KITCHEN", "LAPTOP", "MARKET", "NEBULA", "ORANGE", "PLANET", "QUARTZ"],
+    7: ["AWESOME", "BATTERY", "COUNTRY", "DIAMOND", "ELEGANT", "FANTASY", "GRAVITY", 
+        "HORIZON", "IMAGINE", "JOURNEY", "KINGDOM", "LIBERTY", "MYSTERY", "NATURAL"],
+    8: ["ABSOLUTE", "BUILDING", "CHAMPION", "DINOSAUR", "ELEPHANT", "FUNCTION", "GUARDIAN", 
+        "HOSPITAL", "INFINITY", "JUDGMENT", "KEYBOARD", "LANGUAGE", "MATERIAL", "NAVIGATE"]
+  };
 
+  // Generate daily word based on date and word length
+  useEffect(() => {
+    generateNewTargetWord();
+  }, [wordLength]);
+
+  const generateNewTargetWord = () => {
+    setIsLoading(true);
+    
+    // Get the current wordlist based on selected length
+    const currentWordList = wordLists[wordLength as keyof typeof wordLists] || wordLists[5];
+    
     // Use current date as seed to pick a word
     const today = new Date();
-    const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
     
-    // Fix: Explicitly convert Date objects to timestamps before arithmetic
-    const startOfYear = new Date(today.getFullYear(), 0, 0);
-    const dayOfYear = Math.floor((today.getTime() - startOfYear.getTime()) / 86400000);
+    const wordIndex = (dayOfYear + wordLength) % currentWordList.length;
     
-    const wordIndex = dayOfYear % wordList.length;
-    
-    setTargetWord(wordList[wordIndex]);
+    // Reset game state
+    setTargetWord(currentWordList[wordIndex]);
+    setGuesses([]);
+    setCurrentGuess("");
+    setGameWon(false);
+    setGameLost(false);
     setIsLoading(false);
-  }, []);
+  };
+
+  const handleWordLengthChange = (newLength: number) => {
+    if (guesses.length > 0 && !gameWon && !gameLost) {
+      const isConfirmed = window.confirm("Changing word length will reset your current game. Continue?");
+      if (!isConfirmed) return;
+    }
+    
+    setWordLength(newLength);
+    toast({
+      title: `Word length updated to ${newLength}`,
+      description: "A new word has been generated for you.",
+    });
+  };
 
   const handleKeyPress = (key: string) => {
     // If game is over, do nothing
@@ -50,7 +82,7 @@ const Index = () => {
     
     if (key === "ENTER") {
       // Submit guess
-      if (currentGuess.length === MAX_WORD_LENGTH) {
+      if (currentGuess.length === wordLength) {
         if (guesses.length < MAX_GUESSES) {
           // Add current guess to guesses array
           const newGuesses = [...guesses, currentGuess];
@@ -70,15 +102,15 @@ const Index = () => {
             setGameLost(true);
             toast({
               title: "Game Over",
-              description: `The word was ${targetWord}. Try again tomorrow!`,
+              description: `The word was ${targetWord}. Try again with a different word length!`,
               variant: "destructive",
             });
           }
         }
       } else {
         toast({
-          title: "Word too short",
-          description: "Please enter a 5-letter word",
+          title: `Word too short`,
+          description: `Please enter a ${wordLength}-letter word`,
           variant: "destructive",
         });
       }
@@ -87,10 +119,18 @@ const Index = () => {
       setCurrentGuess(prev => prev.slice(0, -1));
     } else if (/^[A-Z]$/.test(key)) {
       // Add letter to current guess if not at max length
-      if (currentGuess.length < MAX_WORD_LENGTH) {
+      if (currentGuess.length < wordLength) {
         setCurrentGuess(prev => prev + key);
       }
     }
+  };
+
+  const handleReset = () => {
+    if (guesses.length > 0 && !gameWon && !gameLost) {
+      const isConfirmed = window.confirm("Are you sure you want to restart the game?");
+      if (!isConfirmed) return;
+    }
+    generateNewTargetWord();
   };
 
   return (
@@ -98,7 +138,7 @@ const Index = () => {
       <GameHeader />
       
       <main className="flex-1 container max-w-md mx-auto px-4 py-8">
-        <div className="flex flex-col items-center justify-center gap-8">
+        <div className="flex flex-col items-center justify-center gap-6">
           {isLoading ? (
             <div className="text-center">
               <p className="text-lg font-medium text-gray-700">Loading today's word...</p>
@@ -109,6 +149,12 @@ const Index = () => {
                 <h2 className="text-xl font-semibold text-gray-800">Daily Challenge</h2>
                 <p className="text-sm text-gray-600">A new Wordless puzzle every day!</p>
               </div>
+              
+              <GameControls 
+                wordLength={wordLength}
+                onWordLengthChange={handleWordLengthChange}
+                onReset={handleReset}
+              />
               
               <GameBoard 
                 currentGuess={currentGuess}
@@ -126,7 +172,7 @@ const Index = () => {
               {(gameWon || gameLost) && (
                 <div className="mt-6 p-4 bg-white rounded-lg shadow-md text-center">
                   <h2 className="text-xl font-bold mb-2">
-                    {gameWon ? "You won!" : "Better luck tomorrow!"}
+                    {gameWon ? "You won!" : "Better luck next time!"}
                   </h2>
                   <p className="text-lg">
                     {gameWon 
@@ -134,14 +180,20 @@ const Index = () => {
                       : `The word was ${targetWord}`}
                   </p>
                   <p className="mt-2 text-sm text-gray-600">
-                    A new word will be available tomorrow!
+                    Try a different word length for more challenges!
                   </p>
-                  <div className="mt-4">
+                  <div className="mt-4 flex gap-3 justify-center">
                     <button 
-                      onClick={() => window.location.reload()}
+                      onClick={handleReset}
                       className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
                     >
                       Play Again
+                    </button>
+                    <button 
+                      onClick={() => handleWordLengthChange(wordLength < 8 ? wordLength + 1 : 3)}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    >
+                      Try {wordLength < 8 ? wordLength + 1 : 3} Letters
                     </button>
                   </div>
                 </div>
@@ -151,14 +203,20 @@ const Index = () => {
                 <h2 className="text-lg font-semibold text-gray-800 mb-2">About Wordless Online</h2>
                 <p className="text-gray-700 mb-3">
                   Wordless is a fun daily word puzzle game inspired by the classic word-guessing format. 
-                  Each day, a new five-letter word is selected for you to guess.
+                  Each day, a new word is selected for you to guess.
                 </p>
                 <p className="text-gray-700 mb-3">
-                  You have six attempts to guess the word. After each guess, the color of the tiles will 
-                  change to show how close your guess was to the word.
+                  You can choose word lengths from 3 to 8 letters to match your skill level. You have 
+                  six attempts to guess the word. After each guess, the color of the tiles will change 
+                  to show how close your guess was to the word.
+                </p>
+                <p className="text-gray-700 mb-3">
+                  Green tiles indicate correct letters in the right position, yellow tiles show letters 
+                  that are in the word but in the wrong position, and gray tiles represent letters that 
+                  aren't in the word at all.
                 </p>
                 <p className="text-gray-700">
-                  Challenge your friends to see who can solve the puzzle in fewer attempts!
+                  Challenge your friends to see who can solve the puzzle in fewer attempts and less time!
                 </p>
               </div>
             </>

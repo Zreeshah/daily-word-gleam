@@ -7,6 +7,8 @@ interface GameBoardProps {
 }
 
 export const GameBoard = ({ currentGuess, guesses, targetWord, maxGuesses }: GameBoardProps) => {
+  const wordLength = targetWord.length;
+  
   const getLetterStatus = (letter: string, index: number, word: string) => {
     if (letter === targetWord[index]) {
       return "correct"; // Letter is correct and in right position
@@ -23,8 +25,14 @@ export const GameBoard = ({ currentGuess, guesses, targetWord, maxGuesses }: Gam
   return (
     <div className="grid grid-rows-6 gap-2 w-full max-w-sm mx-auto" aria-label="Game board">
       {rows.map((_, rowIndex) => (
-        <div key={rowIndex} className="grid grid-cols-5 gap-2">
-          {Array(5).fill("").map((_, colIndex) => {
+        <div 
+          key={rowIndex} 
+          className={`grid gap-2`}
+          style={{
+            gridTemplateColumns: `repeat(${wordLength}, minmax(0, 1fr))`
+          }}
+        >
+          {Array(wordLength).fill("").map((_, colIndex) => {
             // Determine the letter to display (from completed guesses or current guess)
             let letter = "";
             let status = "";
@@ -44,7 +52,7 @@ export const GameBoard = ({ currentGuess, guesses, targetWord, maxGuesses }: Gam
                 key={colIndex}
                 className={`
                   flex items-center justify-center
-                  w-full aspect-square text-2xl font-bold rounded
+                  w-full aspect-square text-xl font-bold rounded
                   border-2 transition-all duration-300
                   ${letter ? "border-gray-400" : "border-gray-300"}
                   ${status === "correct" ? "bg-green-500 text-white border-green-500" : 
