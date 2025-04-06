@@ -5,7 +5,7 @@ export const HowToPlay = () => {
   return (
     <section className="bg-white py-10">
       <div className="container mx-auto px-4 max-w-3xl">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">How to Play Daily Word Gleam</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">How to Play Wordless</h2>
         
         <div className="grid md:grid-cols-2 gap-10">
           <div>
@@ -80,9 +80,9 @@ export const HowToPlay = () => {
         <Separator className="my-8" />
         
         <div>
-          <h3 className="text-xl font-semibold text-teal-700 mb-4">What is Daily Word Gleam?</h3>
+          <h3 className="text-xl font-semibold text-teal-700 mb-4">What is Wordless?</h3>
           <p className="text-gray-700 mb-4">
-            Daily Word Gleam is an addictive daily word puzzle game where players have six attempts to guess a five-letter word.
+            Wordless is an addictive daily word puzzle game where players have six attempts to guess a five-letter word.
             After each guess, the tiles change color to show how close you are to the solution.
           </p>
           <p className="text-gray-700">

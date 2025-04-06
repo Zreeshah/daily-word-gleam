@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dailywordgleam.com/sitemap.xml
+Sitemap: https://wordless.online/sitemap.xml
