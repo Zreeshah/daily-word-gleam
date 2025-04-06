@@ -33,7 +33,11 @@ const Index = () => {
     // Use current date as seed to pick a word
     const today = new Date();
     const dateString = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+    
+    // Fix: Explicitly convert Date objects to timestamps before arithmetic
+    const startOfYear = new Date(today.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((today.getTime() - startOfYear.getTime()) / 86400000);
+    
     const wordIndex = dayOfYear % wordList.length;
     
     setTargetWord(wordList[wordIndex]);
