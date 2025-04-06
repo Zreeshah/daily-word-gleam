@@ -4,21 +4,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>daily-word-gleam</title>
-    <meta name="description" content="Daily Word Gleam - A fun daily word puzzle game. Guess the five-letter word in six attempts!" />
+    <title>Daily Word Gleam - Fun Daily Word Puzzle Game</title>
+    <meta name="description" content="Daily Word Gleam - A fun daily word puzzle game. Guess the five-letter word in six attempts! Test your vocabulary and deduction skills with a new challenge every day." />
     <meta name="author" content="Lovable" />
+    <meta name="keywords" content="Wordless, Wordless Game, Daily Word Puzzle, Guess the Word Game, Word Game, Daily Puzzle" />
 
-    <meta property="og:title" content="Daily Word Gleam" />
-    <meta property="og:description" content="A fun daily word puzzle game. Guess the five-letter word in six attempts!" />
+    <meta property="og:title" content="Daily Word Gleam - Fun Daily Word Puzzle Game" />
+    <meta property="og:description" content="A fun daily word puzzle game. Guess the five-letter word in six attempts! Test your vocabulary and deduction skills with a new challenge every day." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/wordless-og-image.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:title" content="Daily Word Gleam - Fun Daily Word Puzzle Game" />
+    <meta name="twitter:description" content="A fun daily word puzzle game. Guess the five-letter word in six attempts!" />
     <meta name="twitter:image" content="/wordless-og-image.png" />
     
     <!-- Using the new favicon file instead of the read-only one -->
     <link rel="icon" href="/favicon-wordless.ico" />
+    
+    <!-- JSON-LD Schema for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Daily Word Gleam",
+        "url": "https://dailywordgleam.com",
+        "description": "A fun daily word puzzle game. Guess the five-letter word in six attempts!"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Game",
+        "name": "Daily Word Gleam",
+        "description": "A fun daily word puzzle game where you guess a five-letter word in six attempts!",
+        "gameItem": {
+          "@type": "Thing",
+          "name": "Word Puzzle"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "When does the daily word reset?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The word resets at midnight in your local time zone."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I play more than once per day?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can play as many times as you want, but the word only changes once per day."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are all five-letter words accepted as guesses?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "All valid five-letter words in English are accepted as guesses."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I know if I've used all my attempts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You have six rows on the game board. Once all six are filled, the game is over."
+            }
+          }
+        ]
+      }
+    </script>
   </head>
 
   <body>
