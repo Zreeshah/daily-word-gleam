@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Keyboard } from "@/components/Keyboard";
 import { GameBoard } from "@/components/GameBoard";
@@ -20,7 +19,6 @@ const Index = () => {
   
   const MAX_GUESSES = 6;
 
-  // Word lists for different lengths
   const wordLists = {
     3: ["CAT", "DOG", "BUG", "HAT", "SUN", "RUN", "MAP", "CUP", "BOX", "PEN"],
     4: ["CATS", "DOGS", "JUMP", "PLAY", "CARD", "MARK", "PURE", "RAIN", "SNOW", "WILD"],
@@ -37,7 +35,6 @@ const Index = () => {
         "HOSPITAL", "INFINITY", "JUDGMENT", "KEYBOARD", "LANGUAGE", "MATERIAL", "NAVIGATE"]
   };
 
-  // Generate daily word based on date and word length
   useEffect(() => {
     generateNewTargetWord();
   }, [wordLength]);
@@ -45,16 +42,13 @@ const Index = () => {
   const generateNewTargetWord = () => {
     setIsLoading(true);
     
-    // Get the current wordlist based on selected length
     const currentWordList = wordLists[wordLength as keyof typeof wordLists] || wordLists[5];
     
-    // Use current date as seed to pick a word
     const today = new Date();
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
     
     const wordIndex = (dayOfYear + wordLength) % currentWordList.length;
     
-    // Reset game state
     setTargetWord(currentWordList[wordIndex]);
     setGuesses([]);
     setCurrentGuess("");
@@ -77,19 +71,15 @@ const Index = () => {
   };
 
   const handleKeyPress = (key: string) => {
-    // If game is over, do nothing
     if (gameWon || gameLost) return;
     
     if (key === "ENTER") {
-      // Submit guess
       if (currentGuess.length === wordLength) {
         if (guesses.length < MAX_GUESSES) {
-          // Add current guess to guesses array
           const newGuesses = [...guesses, currentGuess];
           setGuesses(newGuesses);
           setCurrentGuess("");
           
-          // Check if game won
           if (currentGuess === targetWord) {
             setGameWon(true);
             toast({
@@ -97,7 +87,6 @@ const Index = () => {
               description: "You solved today's Wordless puzzle!",
             });
           } 
-          // Check if game lost (last guess used)
           else if (newGuesses.length === MAX_GUESSES) {
             setGameLost(true);
             toast({
@@ -115,10 +104,8 @@ const Index = () => {
         });
       }
     } else if (key === "BACKSPACE") {
-      // Remove last character from current guess
       setCurrentGuess(prev => prev.slice(0, -1));
     } else if (/^[A-Z]$/.test(key)) {
-      // Add letter to current guess if not at max length
       if (currentGuess.length < wordLength) {
         setCurrentGuess(prev => prev + key);
       }
@@ -138,7 +125,7 @@ const Index = () => {
       <GameHeader />
       
       <main className="flex-1 container max-w-md mx-auto px-4 py-8">
-        <div className="flex flex-col items-center justify-center gap-6">
+        <div className="flex flex-col items-center justify-center gap-6" id="game-section">
           {isLoading ? (
             <div className="text-center">
               <p className="text-lg font-medium text-gray-700">Loading today's word...</p>
@@ -224,7 +211,9 @@ const Index = () => {
         </div>
       </main>
       
-      <HowToPlay />
+      <div id="how-to-play">
+        <HowToPlay />
+      </div>
       <Footer />
     </div>
   );
