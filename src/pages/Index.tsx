@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Keyboard } from "@/components/Keyboard";
 import { GameBoard } from "@/components/GameBoard";
 import { GameHeader } from "@/components/GameHeader";
 import { GameControls } from "@/components/GameControls";
 import { HowToPlay } from "@/components/HowToPlay";
+import { MetaTags } from "@/components/MetaTags";
 import { useToast } from "@/hooks/use-toast";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -125,6 +125,7 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+      <MetaTags />
       <GameHeader />
       
       <main className="flex-1 container max-w-md mx-auto px-4 py-8">

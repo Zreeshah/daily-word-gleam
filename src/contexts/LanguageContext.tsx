@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export type Language = 'en' | 'fr' | 'es' | 'it' | 'tr';
 
@@ -325,18 +325,50 @@ const detectBrowserLanguage = (): Language => {
   return supportedLangs.includes(browserLang as Language) ? (browserLang as Language) : 'en';
 };
 
+const getLanguageFromPath = (pathname: string): Language => {
+  const pathLang = pathname.split('/')[1];
+  const supportedLangs: Language[] = ['en', 'fr', 'es', 'it', 'tr'];
+  return supportedLangs.includes(pathLang as Language) ? (pathLang as Language) : 'en';
+};
+
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>(() => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const [language, setLanguageState] = useState<Language>(() => {
+    // First check URL path
+    const pathLang = getLanguageFromPath(location.pathname);
+    if (pathLang !== 'en') return pathLang;
+    
+    // Then check localStorage
     const saved = localStorage.getItem('wordless-language');
     if (saved && ['en', 'fr', 'es', 'it', 'tr'].includes(saved)) {
       return saved as Language;
     }
+    
+    // Finally fallback to browser language
     return detectBrowserLanguage();
   });
 
+  // Update language when URL changes
   useEffect(() => {
-    localStorage.setItem('wordless-language', language);
-  }, [language]);
+    const pathLang = getLanguageFromPath(location.pathname);
+    if (pathLang !== language) {
+      setLanguageState(pathLang);
+    }
+  }, [location.pathname]);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('wordless-language', lang);
+    
+    // Navigate to appropriate URL
+    if (lang === 'en') {
+      navigate('/', { replace: true });
+    } else {
+      navigate(`/${lang}`, { replace: true });
+    }
+  };
 
   const t = (key: string, variables?: Record<string, string | number>): string => {
     let translation = translations[language][key as keyof typeof translations[typeof language]] || key;
