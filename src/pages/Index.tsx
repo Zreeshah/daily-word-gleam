@@ -6,6 +6,7 @@ import { GameControls } from "@/components/GameControls";
 import { HowToPlay } from "@/components/HowToPlay";
 import { useToast } from "@/hooks/use-toast";
 import { Footer } from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Index = () => {
   const [guesses, setGuesses] = useState<string[]>([]);
@@ -16,6 +17,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [wordLength, setWordLength] = useState(5);
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const MAX_GUESSES = 6;
 
@@ -59,14 +61,14 @@ const Index = () => {
 
   const handleWordLengthChange = (newLength: number) => {
     if (guesses.length > 0 && !gameWon && !gameLost) {
-      const isConfirmed = window.confirm("Changing word length will reset your current game. Continue?");
+      const isConfirmed = window.confirm(t('game.confirmChange'));
       if (!isConfirmed) return;
     }
     
     setWordLength(newLength);
     toast({
-      title: `Word length updated to ${newLength}`,
-      description: "A new word has been generated for you.",
+      title: t('game.wordLengthUpdated', { length: newLength }),
+      description: t('game.newWordGenerated'),
     });
   };
 
@@ -83,23 +85,23 @@ const Index = () => {
           if (currentGuess === targetWord) {
             setGameWon(true);
             toast({
-              title: "Congratulations!",
-              description: "You solved today's Wordless puzzle!",
+              title: t('game.congratulations'),
+              description: t('game.solved'),
             });
           } 
           else if (newGuesses.length === MAX_GUESSES) {
             setGameLost(true);
             toast({
-              title: "Game Over",
-              description: `The word was ${targetWord}. Try again with a different word length!`,
+              title: t('game.gameOver'),
+              description: t('game.wordWas', { word: targetWord }),
               variant: "destructive",
             });
           }
         }
       } else {
         toast({
-          title: `Word too short`,
-          description: `Please enter a ${wordLength}-letter word`,
+          title: t('game.wordTooShort'),
+          description: t('game.enterWord', { length: wordLength }),
           variant: "destructive",
         });
       }
@@ -114,7 +116,7 @@ const Index = () => {
 
   const handleReset = () => {
     if (guesses.length > 0 && !gameWon && !gameLost) {
-      const isConfirmed = window.confirm("Are you sure you want to restart the game?");
+      const isConfirmed = window.confirm(t('game.confirmReset'));
       if (!isConfirmed) return;
     }
     generateNewTargetWord();
@@ -128,13 +130,13 @@ const Index = () => {
         <div className="flex flex-col items-center justify-center gap-6" id="game-section">
           {isLoading ? (
             <div className="text-center">
-              <p className="text-lg font-medium text-gray-700">Loading today's word...</p>
+              <p className="text-lg font-medium text-gray-700">{t('game.loading')}</p>
             </div>
           ) : (
             <>
               <div className="text-center mb-2">
-                <h2 className="text-xl font-semibold text-gray-800">Daily Challenge</h2>
-                <p className="text-sm text-gray-600">A new Wordless puzzle every day!</p>
+                <h2 className="text-xl font-semibold text-gray-800">{t('game.dailyChallenge')}</h2>
+                <p className="text-sm text-gray-600">{t('game.newPuzzle')}</p>
               </div>
               
               <GameControls 
@@ -159,51 +161,46 @@ const Index = () => {
               {(gameWon || gameLost) && (
                 <div className="mt-6 p-4 bg-white rounded-lg shadow-md text-center">
                   <h2 className="text-xl font-bold mb-2">
-                    {gameWon ? "You won!" : "Better luck next time!"}
+                    {gameWon ? t('game.youWon') : t('game.betterLuck')}
                   </h2>
                   <p className="text-lg">
                     {gameWon 
-                      ? `You solved it in ${guesses.length} ${guesses.length === 1 ? 'guess' : 'guesses'}!` 
-                      : `The word was ${targetWord}`}
+                      ? t('game.solvedIn', { count: guesses.length })
+                      : t('game.wordWas', { word: targetWord })}
                   </p>
                   <p className="mt-2 text-sm text-gray-600">
-                    Try a different word length for more challenges!
+                    {t('game.tryDifferent')}
                   </p>
                   <div className="mt-4 flex gap-3 justify-center">
                     <button 
                       onClick={handleReset}
                       className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
                     >
-                      Play Again
+                      {t('game.playAgain')}
                     </button>
                     <button 
                       onClick={() => handleWordLengthChange(wordLength < 8 ? wordLength + 1 : 3)}
                       className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                     >
-                      Try {wordLength < 8 ? wordLength + 1 : 3} Letters
+                      {t('game.try', { length: wordLength < 8 ? wordLength + 1 : 3 })}
                     </button>
                   </div>
                 </div>
               )}
               
               <div className="w-full mt-6 p-4 bg-white rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">About Wordless Online</h2>
+                <h2 className="text-lg font-semibold text-gray-800 mb-2">{t('about.title')}</h2>
                 <p className="text-gray-700 mb-3">
-                  Wordless is a fun daily word puzzle game inspired by the classic word-guessing format. 
-                  Each day, a new word is selected for you to guess.
+                  {t('about.description1')}
                 </p>
                 <p className="text-gray-700 mb-3">
-                  You can choose word lengths from 3 to 8 letters to match your skill level. You have 
-                  six attempts to guess the word. After each guess, the color of the tiles will change 
-                  to show how close your guess was to the word.
+                  {t('about.description2')}
                 </p>
                 <p className="text-gray-700 mb-3">
-                  Green tiles indicate correct letters in the right position, yellow tiles show letters 
-                  that are in the word but in the wrong position, and gray tiles represent letters that 
-                  aren't in the word at all.
+                  {t('about.description3')}
                 </p>
                 <p className="text-gray-700">
-                  Challenge your friends to see who can solve the puzzle in fewer attempts and less time!
+                  {t('about.description4')}
                 </p>
               </div>
             </>
